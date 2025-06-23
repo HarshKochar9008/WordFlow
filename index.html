@@ -311,104 +311,11 @@
         padding: 4px 0 4px 0;
       }
     }
-    /* Add styles for auth UI */
-    .auth-container {
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      min-height: 100vh;
-      background: var(--bg);
-      position: fixed;
-      top: 0; left: 0; right: 0; bottom: 0;
-      z-index: 1000;
-    }
-    .auth-card {
-      background: #fff;
-      border-radius: 18px;
-      box-shadow: 0 8px 32px rgba(0,0,0,0.10);
-      padding: 40px 32px;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      gap: 24px;
-      min-width: 320px;
-    }
-    .google-btn {
-      background: #fff;
-      color: #222;
-      border: 1.5px solid #cfd8dc;
-      border-radius: 8px;
-      padding: 10px 24px;
-      font-size: 1.1rem;
-      font-weight: 600;
-      cursor: pointer;
-      display: flex;
-      align-items: center;
-      gap: 10px;
-      box-shadow: 0 2px 8px rgba(0,0,0,0.07);
-      transition: background 0.18s, border 0.18s;
-    }
-    .google-btn:hover, .google-btn:focus {
-      background: #f4f8fb;
-      border: 1.5px solid #0066cc;
-    }
-    .user-info {
-      display: flex;
-      align-items: center;
-      gap: 12px;
-      margin-bottom: 10px;
-      margin-left: 16px;
-    }
-    .user-info img {
-      width: 36px;
-      height: 36px;
-      border-radius: 50%;
-      border: 2px solid #eee;
-    }
-    .signout-btn {
-      background: #fff;
-      color: #0066cc;
-      border: 1.2px solid #cfd8dc;
-      border-radius: 7px;
-      padding: 7px 14px;
-      font-size: 1rem;
-      font-weight: 500;
-      cursor: pointer;
-      transition: background 0.18s, border 0.18s, color 0.18s;
-      outline: none;
-      margin-left: 8px;
-    }
-    .signout-btn:hover, .signout-btn:focus {
-      background: #e3eaf5;
-      border: 1.5px solid #0066cc;
-      color: #0052a3;
-    }
   </style>
-  <!-- Firebase App (the core Firebase SDK) -->
-  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
-  <!-- Firebase Auth -->
-  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
 </head>
 <body>
-  <!-- Google Auth UI -->
-  <div class="auth-container" id="authContainer">
-    <div class="auth-card">
-      <h2>Sign in to use Text Tools</h2>
-      <button class="google-btn" id="googleSignInBtn">
-        <img src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg" alt="Google logo" width="24" height="24">
-        Sign in with Google
-      </button>
-    </div>
-  </div>
-  <!-- User Info Bar -->
-  <div class="user-info" id="userInfo" style="display:none;">
-    <img id="userPic" src="" alt="User profile">
-    <span id="userName"></span>
-    <button class="signout-btn" id="signOutBtn">Sign Out</button>
-  </div>
-  <!-- Dashboard (hidden until signed in) -->
-  <nav class="sidebar" id="sidebar">
+  <nav class="sidebar">
+    <img src="WordFlow.png" alt="WordFlow Logo" style="display:block;margin:0 auto 18px auto;width:80px;height:auto;" />
     <h2>Text Tools</h2>
     <div class="nav">
       <button class="nav-btn active" data-tool="wordcount">Word Count</button>
@@ -419,7 +326,7 @@
       <button class="nav-btn" data-tool="download">Download</button>
     </div>
   </nav>
-  <main class="main" id="mainDashboard">
+  <main class="main">
     <section class="tool-card" id="wordcount-tool">
       <h1>Word Count Tool</h1>
       <div class="controls">
@@ -497,62 +404,6 @@
     </section>
   </main>
   <script>
-        // --- Firebase Config (replace with your own config from Firebase Console) ---
-        const firebaseConfig = {
-            apiKey: "AIzaSyDrtYupy_VioRO_TT1JaB70hs8aokaGjwE",
-            authDomain: "wordflow-c8def.firebaseapp.com",
-            projectId: "wordflow-c8def",
-            storageBucket: "wordflow-c8def.firebasestorage.app",
-            messagingSenderId: "809263593669",
-            appId: "1:809263593669:web:239babbed156da292e98ac",
-            measurementId: "G-MTN4VSFQJP"
-        };
-    // --- Initialize Firebase ---
-    firebase.initializeApp(firebaseConfig);
-    const auth = firebase.auth();
-
-    // --- Auth UI Elements ---
-    const authContainer = document.getElementById('authContainer');
-    const googleSignInBtn = document.getElementById('googleSignInBtn');
-    const userInfo = document.getElementById('userInfo');
-    const userPic = document.getElementById('userPic');
-    const userName = document.getElementById('userName');
-    const signOutBtn = document.getElementById('signOutBtn');
-    const sidebar = document.getElementById('sidebar');
-    const mainDashboard = document.getElementById('mainDashboard');
-
-    // --- Google Sign-In ---
-    googleSignInBtn.onclick = function() {
-      const provider = new firebase.auth.GoogleAuthProvider();
-      auth.signInWithPopup(provider).catch(function(error) {
-        alert('Sign in failed: ' + error.message);
-      });
-    };
-    // --- Sign Out ---
-    signOutBtn.onclick = function() {
-      auth.signOut();
-    };
-    // --- Auth State Listener ---
-    auth.onAuthStateChanged(function(user) {
-      if (user) {
-        // Signed in
-        authContainer.style.display = 'none';
-        sidebar.style.display = '';
-        mainDashboard.style.display = '';
-        userInfo.style.display = 'flex';
-        userPic.src = user.photoURL;
-        userName.textContent = user.displayName;
-      } else {
-        // Signed out
-        authContainer.style.display = 'flex';
-        sidebar.style.display = 'none';
-        mainDashboard.style.display = 'none';
-        userInfo.style.display = 'none';
-        userPic.src = '';
-        userName.textContent = '';
-      }
-    });
-
     // --- Shared State ---
     let mainText = '';
     // --- Sidebar Navigation ---
@@ -634,7 +485,7 @@
       showToast('Copied!');
       highlightTextarea(textInput);
     });
-    function showToast(message, isError = true) {
+    function showToast(message, isError = false) {
       toast.textContent = message;
       toast.style.background = isError ? 'var(--danger)' : 'var(--accent)';
       toast.classList.add('show');
@@ -655,7 +506,7 @@
     function highlightAll(text, search) {
       if (!search) return text;
       const esc = search.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
-      return text.replace(new RegExp(esc, 'gi'), match => `<span class=\"highlight-search\">${match}</span>`);
+      return text.replace(new RegExp(esc, 'gi'), match => `<span class="highlight-search">${match}</span>`);
     }
     function updateSearch() {
       const search = searchInput.value;
