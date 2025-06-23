@@ -275,16 +275,24 @@
         box-shadow: none;
         position: static;
         padding: 0;
+        justify-content: space-between;
+        align-items: center;
       }
       .sidebar h2 {
         margin-bottom: 0;
         font-size: 1.1rem;
         padding: 12px 0;
       }
+      .sidebar img {
+        width: 48px !important;
+        margin: 0 8px 0 8px !important;
+      }
       .nav {
         flex-direction: row;
         gap: 0;
         padding: 0 4px;
+        flex: 1;
+        justify-content: flex-end;
       }
       .nav-btn {
         flex: 1;
@@ -302,6 +310,10 @@
         border-radius: 0;
         box-shadow: none;
       }
+      .toast {
+        left: 50% !important;
+        transform: translateX(-50%) !important;
+      }
     }
     @media (max-width: 600px) {
       .tool-card {
@@ -310,14 +322,52 @@
       .main {
         padding: 4px 0 4px 0;
       }
+      .sidebar {
+        flex-direction: column;
+        align-items: flex-start;
+        padding: 8px 0 0 0;
+      }
+      .sidebar img {
+        width: 38px !important;
+        margin: 0 0 8px 12px !important;
+      }
+      .sidebar h2 {
+        font-size: 1rem;
+        padding: 6px 0;
+        margin-bottom: 8px;
+      }
+      .nav {
+        flex-direction: column;
+        width: 100%;
+        gap: 2px;
+        padding: 0 2px;
+      }
+      .nav-btn {
+        font-size: 0.95rem;
+        padding: 8px 2px;
+      }
+      .tool-card h1 {
+        font-size: 1.2rem;
+      }
+      textarea {
+        font-size: 1rem;
+        min-height: 120px;
+      }
     }
   </style>
 </head>
 <body>
-  <nav class="sidebar">
-    <img src="WordFlow.png" alt="WordFlow Logo" style="display:block;margin:0 auto 18px auto;width:80px;height:auto;" />
-    <h2>Text Tools</h2>
-    <div class="nav">
+  <nav class="sidebar" id="sidebarNav">
+    <div style="display:flex;align-items:center;justify-content:space-between;width:100%;">
+      <img src="WordFlow.png" alt="WordFlow Logo" style="display:block;width:80px;height:auto;margin:0 8px 0 8px;" />
+      <h2 style="flex:1;text-align:center;margin:0;">Text Tools</h2>
+      <button id="sidebarToggle" style="background:none;border:none;display:none;flex-direction:column;gap:3px;padding:8px 12px;cursor:pointer;outline:none;" aria-label="Toggle navigation">
+        <span style="width:24px;height:3px;background:#0066cc;display:block;border-radius:2px;"></span>
+        <span style="width:24px;height:3px;background:#0066cc;display:block;border-radius:2px;"></span>
+        <span style="width:24px;height:3px;background:#0066cc;display:block;border-radius:2px;"></span>
+      </button>
+    </div>
+    <div class="nav" id="sidebarNavLinks">
       <button class="nav-btn active" data-tool="wordcount">Word Count</button>
       <button class="nav-btn" data-tool="search">Search</button>
       <button class="nav-btn" data-tool="replace">Replace</button>
@@ -330,6 +380,7 @@
     <section class="tool-card" id="wordcount-tool">
       <h1>Word Count Tool</h1>
       <div class="controls">
+        <div id="dropZone" style="width:100%;height:100px;border:2px dashed #0066cc;border-radius:10px;padding:48px 0;margin-bottom:20px;text-align:center;transition:background 0.2s;">Drag & Drop a .txt file here</div>
         <input type="file" id="fileInput" accept=".txt" aria-label="Open text file">
         <button class="action-btn" id="clearBtn" aria-label="Clear text area">Clear</button>
         <button class="action-btn" id="copyBtn" aria-label="Copy text">Copy</button>
@@ -435,6 +486,7 @@
     const clearBtn = document.getElementById('clearBtn');
     const copyBtn = document.getElementById('copyBtn');
     const toast = document.getElementById('toast');
+    const dropZone = document.getElementById('dropZone');
     let lastWordCount = 0, lastCharCount = 0, toastTimeout = null;
     function animateCount(el, newCount, lastCount) {
       if (newCount !== lastCount) {
@@ -459,19 +511,29 @@
       syncAllTools();
     }
     textInput.addEventListener('input', updateCounts);
-    fileInput.addEventListener('change', function() {
-      const file = this.files[0];
-      if (file && file.type === "text/plain") {
+    // Drag & Drop for files
+    ['dragenter','dragover'].forEach(evt => dropZone.addEventListener(evt, e => {
+      e.preventDefault();
+      e.stopPropagation();
+      dropZone.style.background = '#e3eaf5';
+    }));
+    ['dragleave','drop'].forEach(evt => dropZone.addEventListener(evt, e => {
+      e.preventDefault();
+      e.stopPropagation();
+      dropZone.style.background = '';
+    }));
+    dropZone.addEventListener('drop', e => {
+      const file = e.dataTransfer.files[0];
+      if (file && file.type === 'text/plain') {
         const reader = new FileReader();
-        reader.onload = function(e) {
-          textInput.value = e.target.result;
+        reader.onload = function(ev) {
+          textInput.value = ev.target.result;
           updateCounts();
           highlightTextarea(textInput);
         };
         reader.readAsText(file);
       } else if (file) {
-        showToast('Please select a .txt file.', true);
-        fileInput.value = '';
+        showToast('Please drop a .txt file.', true);
       }
     });
     clearBtn.addEventListener('click', () => {
@@ -640,6 +702,27 @@
     [clearBtn, copyBtn, fileInput, textInput].forEach(el => {
       el.tabIndex = 0;
     });
+    // Responsive sidebar toggle for mobile
+    const sidebarToggle = document.getElementById('sidebarToggle');
+    const sidebarNavLinks = document.getElementById('sidebarNavLinks');
+    function handleResize() {
+      if (window.innerWidth <= 900) {
+        sidebarToggle.style.display = 'flex';
+        sidebarNavLinks.style.display = 'none';
+      } else {
+        sidebarToggle.style.display = 'none';
+        sidebarNavLinks.style.display = '';
+      }
+    }
+    sidebarToggle && sidebarToggle.addEventListener('click', () => {
+      if (sidebarNavLinks.style.display === 'none') {
+        sidebarNavLinks.style.display = '';
+      } else {
+        sidebarNavLinks.style.display = 'none';
+      }
+    });
+    window.addEventListener('resize', handleResize);
+    window.addEventListener('DOMContentLoaded', handleResize);
   </script>
 </body>
 </html> 
