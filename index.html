@@ -1,0 +1,794 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>WordFlow</title>
+  <style>
+    :root {
+      --primary: #0066cc;
+      --primary-dark: #0052a3;
+      --accent: #00b894;
+      --danger: #e74c3c;
+      --bg: #f8fafd;
+      --sidebar: #fff;
+      --shadow: 0 8px 32px rgba(0,0,0,0.10);
+      --radius: 18px;
+      --transition: 0.18s;
+    }
+    html, body {
+      height: 100%;
+      margin: 0;
+      padding: 0;
+      font-family: 'Segoe UI', Arial, sans-serif;
+      background: var(--bg);
+      color: #222;
+    }
+    body {
+      min-height: 100vh;
+      display: flex;
+      flex-direction: row;
+    }
+    .sidebar {
+      width: 220px;
+      background: var(--sidebar);
+      box-shadow: 2px 0 16px rgba(0,0,0,0.04);
+      display: flex;
+      flex-direction: column;
+      padding: 32px 0 0 0;
+      border-top-right-radius: var(--radius);
+      border-bottom-right-radius: var(--radius);
+      min-height: 100vh;
+      position: fixed;
+      left: 0;
+      top: 0;
+      z-index: 10;
+    }
+    .sidebar h2 {
+      text-align: center;
+      color: var(--primary);
+      font-size: 1.5rem;
+      margin-bottom: 32px;
+      font-weight: 800;
+      letter-spacing: 1px;
+    }
+    .nav {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      padding: 0 18px;
+    }
+    .nav-btn {
+      background: none;
+      border: none;
+      color: #333;
+      font-size: 1.08rem;
+      padding: 12px 18px;
+      border-radius: 8px;
+      text-align: left;
+      cursor: pointer;
+      transition: background var(--transition), color var(--transition);
+      font-weight: 500;
+    }
+    .nav-btn.active, .nav-btn:hover, .nav-btn:focus {
+      background: var(--primary);
+      color: #fff;
+      outline: none;
+    }
+    .main {
+      margin-left: 240px;
+      flex: 1;
+      padding: 40px 0 40px 0;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      min-height: 100vh;
+    }
+    .tool-card {
+      background: #fff;
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      padding: 36px 28px 28px 28px;
+      width: 100%;
+      max-width: 650px;
+      margin-bottom: 24px;
+      display: flex;
+      flex-direction: column;
+      gap: 24px;
+      position: relative;
+      transition: box-shadow var(--transition);
+    }
+    .tool-card h1 {
+      color: var(--primary);
+      font-size: 2rem;
+      margin: 0 0 10px 0;
+      text-align: center;
+      font-weight: 800;
+      letter-spacing: 1px;
+    }
+    .controls, .replace-controls {
+      display: flex;
+      gap: 12px;
+      align-items: center;
+      flex-wrap: wrap;
+      justify-content: center;
+    }
+    .controls input[type="file"] {
+      font-size: 1rem;
+      border: none;
+      background: none;
+    }
+    .action-btn, .replace-btn {
+      background: var(--primary);
+      color: #fff;
+      border: none;
+      border-radius: 7px;
+      padding: 8px 18px;
+      font-size: 1rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: background var(--transition), box-shadow var(--transition), transform 0.12s;
+      box-shadow: 0 2px 8px rgba(0,102,204,0.07);
+      outline: none;
+    }
+    .action-btn:hover, .action-btn:focus, .replace-btn:hover, .replace-btn:focus {
+      background: var(--primary-dark);
+      transform: translateY(-2px) scale(1.04);
+      box-shadow: 0 4px 16px rgba(0,102,204,0.13);
+    }
+    .textarea-wrap {
+      position: relative;
+      width: 100%;
+    }
+    textarea {
+      width: 100%;
+      min-height: 180px;
+      font-size: 1.13rem;
+      padding: 16px 14px;
+      border-radius: 10px;
+      border: 1.5px solid #cfd8dc;
+      resize: vertical;
+      background: #f4f8fb;
+      transition: border 0.2s, box-shadow 0.2s;
+      font-family: inherit;
+      box-sizing: border-box;
+    }
+    textarea:focus {
+      border: 2px solid var(--primary);
+      outline: none;
+      background: #fff;
+      box-shadow: 0 2px 12px #e3eaf5;
+    }
+    .highlight {
+      border: 2px solid var(--accent) !important;
+      box-shadow: 0 0 0 2px #b2f7e2;
+      transition: border 0.2s, box-shadow 0.2s;
+    }
+    .count-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-top: 10px;
+      gap: 10px;
+    }
+    .word-count, .char-count, .sentence-count, .para-count, .reading-time {
+      font-size: 1.1rem;
+      font-weight: bold;
+      color: var(--primary);
+      user-select: none;
+    }
+    .count-animate {
+      color: var(--accent) !important;
+      transform: scale(1.13);
+    }
+    .utility-btns {
+      display: flex;
+      gap: 10px;
+    }
+    .utility-btn {
+      background: #f4f8fb;
+      color: var(--primary);
+      border: 1.2px solid #cfd8dc;
+      border-radius: 7px;
+      padding: 7px 14px;
+      font-size: 1rem;
+      font-weight: 500;
+      cursor: pointer;
+      transition: background var(--transition), border var(--transition), color var(--transition);
+      outline: none;
+    }
+    .utility-btn:hover, .utility-btn:focus {
+      background: #e3eaf5;
+      border: 1.5px solid var(--primary);
+      color: var(--primary-dark);
+    }
+    .toast {
+      position: absolute;
+      left: 50%;
+      bottom: 18px;
+      transform: translateX(-50%);
+      background: var(--accent);
+      color: #fff;
+      padding: 10px 28px;
+      border-radius: 8px;
+      font-size: 1.08rem;
+      font-weight: 600;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.3s, bottom 0.3s;
+      z-index: 10;
+      box-shadow: 0 2px 12px #b2f7e2;
+    }
+    .toast.show {
+      opacity: 1;
+      bottom: 38px;
+      pointer-events: auto;
+    }
+    .highlight-search {
+      background: #ffeaa7;
+      color: #d35400;
+      border-radius: 3px;
+      padding: 0 2px;
+    }
+    .replace-controls {
+      margin-top: 10px;
+      justify-content: flex-start;
+    }
+    .replace-btn {
+      margin-left: 8px;
+      background: var(--accent);
+      color: #fff;
+    }
+    .replace-btn:hover, .replace-btn:focus {
+      background: #00a07a;
+    }
+    .case-controls {
+      display: flex;
+      gap: 10px;
+      margin-top: 10px;
+      flex-wrap: wrap;
+    }
+    .case-btn {
+      background: #f4f8fb;
+      color: var(--primary);
+      border: 1.2px solid #cfd8dc;
+      border-radius: 7px;
+      padding: 7px 14px;
+      font-size: 1rem;
+      font-weight: 500;
+      cursor: pointer;
+      transition: background var(--transition), border var(--transition), color var(--transition);
+      outline: none;
+    }
+    .case-btn:hover, .case-btn:focus {
+      background: #e3eaf5;
+      border: 1.5px solid var(--primary);
+      color: var(--primary-dark);
+    }
+    @media (max-width: 900px) {
+      .sidebar {
+        width: 100vw;
+        min-height: unset;
+        height: auto;
+        flex-direction: row;
+        border-radius: 0;
+        box-shadow: none;
+        position: static;
+        padding: 0;
+      }
+      .sidebar h2 {
+        margin-bottom: 0;
+        font-size: 1.1rem;
+        padding: 12px 0;
+      }
+      .nav {
+        flex-direction: row;
+        gap: 0;
+        padding: 0 4px;
+      }
+      .nav-btn {
+        flex: 1;
+        padding: 10px 4px;
+        font-size: 0.98rem;
+        border-radius: 0;
+        text-align: center;
+      }
+      .main {
+        margin-left: 0;
+        padding: 16px 0 16px 0;
+      }
+      .tool-card {
+        padding: 18px 4vw 18px 4vw;
+        border-radius: 0;
+        box-shadow: none;
+      }
+    }
+    @media (max-width: 600px) {
+      .tool-card {
+        padding: 8px 2vw 8px 2vw;
+      }
+      .main {
+        padding: 4px 0 4px 0;
+      }
+    }
+    /* Add styles for auth UI */
+    .auth-container {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      min-height: 100vh;
+      background: var(--bg);
+      position: fixed;
+      top: 0; left: 0; right: 0; bottom: 0;
+      z-index: 1000;
+    }
+    .auth-card {
+      background: #fff;
+      border-radius: 18px;
+      box-shadow: 0 8px 32px rgba(0,0,0,0.10);
+      padding: 40px 32px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 24px;
+      min-width: 320px;
+    }
+    .google-btn {
+      background: #fff;
+      color: #222;
+      border: 1.5px solid #cfd8dc;
+      border-radius: 8px;
+      padding: 10px 24px;
+      font-size: 1.1rem;
+      font-weight: 600;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.07);
+      transition: background 0.18s, border 0.18s;
+    }
+    .google-btn:hover, .google-btn:focus {
+      background: #f4f8fb;
+      border: 1.5px solid #0066cc;
+    }
+    .user-info {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 10px;
+      margin-left: 16px;
+    }
+    .user-info img {
+      width: 36px;
+      height: 36px;
+      border-radius: 50%;
+      border: 2px solid #eee;
+    }
+    .signout-btn {
+      background: #fff;
+      color: #0066cc;
+      border: 1.2px solid #cfd8dc;
+      border-radius: 7px;
+      padding: 7px 14px;
+      font-size: 1rem;
+      font-weight: 500;
+      cursor: pointer;
+      transition: background 0.18s, border 0.18s, color 0.18s;
+      outline: none;
+      margin-left: 8px;
+    }
+    .signout-btn:hover, .signout-btn:focus {
+      background: #e3eaf5;
+      border: 1.5px solid #0066cc;
+      color: #0052a3;
+    }
+  </style>
+  <!-- Firebase App (the core Firebase SDK) -->
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+  <!-- Firebase Auth -->
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
+</head>
+<body>
+  <!-- Google Auth UI -->
+  <div class="auth-container" id="authContainer">
+    <div class="auth-card">
+      <h2>Sign in to use Text Tools</h2>
+      <button class="google-btn" id="googleSignInBtn">
+        <img src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg" alt="Google logo" width="24" height="24">
+        Sign in with Google
+      </button>
+    </div>
+  </div>
+  <!-- User Info Bar -->
+  <div class="user-info" id="userInfo" style="display:none;">
+    <img id="userPic" src="" alt="User profile">
+    <span id="userName"></span>
+    <button class="signout-btn" id="signOutBtn">Sign Out</button>
+  </div>
+  <!-- Dashboard (hidden until signed in) -->
+  <nav class="sidebar" id="sidebar">
+    <h2>Text Tools</h2>
+    <div class="nav">
+      <button class="nav-btn active" data-tool="wordcount">Word Count</button>
+      <button class="nav-btn" data-tool="search">Search</button>
+      <button class="nav-btn" data-tool="replace">Replace</button>
+      <button class="nav-btn" data-tool="stats">Statistics</button>
+      <button class="nav-btn" data-tool="case">Case Converter</button>
+      <button class="nav-btn" data-tool="download">Download</button>
+    </div>
+  </nav>
+  <main class="main" id="mainDashboard">
+    <section class="tool-card" id="wordcount-tool">
+      <h1>Word Count Tool</h1>
+      <div class="controls">
+        <input type="file" id="fileInput" accept=".txt" aria-label="Open text file">
+        <button class="action-btn" id="clearBtn" aria-label="Clear text area">Clear</button>
+        <button class="action-btn" id="copyBtn" aria-label="Copy text">Copy</button>
+      </div>
+      <div class="textarea-wrap">
+        <textarea id="textInput" placeholder="Type or paste your text here..." aria-label="Text input area"></textarea>
+      </div>
+      <div class="count-row">
+        <span class="word-count" id="wordCount">Word Count: 0</span>
+        <span class="char-count" id="charCount">Characters: 0</span>
+      </div>
+      <div class="toast" id="toast">Copied!</div>
+    </section>
+    <section class="tool-card" id="search-tool" style="display:none;">
+      <h1>Search Word</h1>
+      <div class="replace-controls">
+        <input type="text" id="searchInput" placeholder="Enter word or phrase to search" style="flex:1;min-width:120px;" aria-label="Search word">
+        <button class="action-btn" id="searchBtn">Search</button>
+      </div>
+      <div class="textarea-wrap">
+        <textarea id="searchTextArea" readonly style="background:#f4f8fb;"></textarea>
+      </div>
+      <div class="count-row">
+        <span class="word-count" id="searchCount">Matches: 0</span>
+      </div>
+    </section>
+    <section class="tool-card" id="replace-tool" style="display:none;">
+      <h1>Replace Word</h1>
+      <div class="replace-controls">
+        <input type="text" id="findInput" placeholder="Find..." aria-label="Find word">
+        <input type="text" id="replaceInput" placeholder="Replace with..." aria-label="Replace with">
+        <button class="replace-btn" id="replaceBtn">Replace All</button>
+      </div>
+      <div class="textarea-wrap">
+        <textarea id="replaceTextArea" readonly style="background:#f4f8fb;"></textarea>
+      </div>
+      <div class="count-row">
+        <span class="word-count" id="replaceCount">Replacements: 0</span>
+      </div>
+    </section>
+    <section class="tool-card" id="stats-tool" style="display:none;">
+      <h1>Text Statistics</h1>
+      <div class="textarea-wrap">
+        <textarea id="statsTextArea" readonly style="background:#f4f8fb;"></textarea>
+      </div>
+      <div class="count-row">
+        <span class="sentence-count" id="sentenceCount">Sentences: 0</span>
+        <span class="para-count" id="paraCount">Paragraphs: 0</span>
+        <span class="reading-time" id="readingTime">Reading Time: 0 min</span>
+      </div>
+    </section>
+    <section class="tool-card" id="case-tool" style="display:none;">
+      <h1>Case Converter</h1>
+      <div class="case-controls">
+        <button class="case-btn" data-case="upper">UPPERCASE</button>
+        <button class="case-btn" data-case="lower">lowercase</button>
+        <button class="case-btn" data-case="title">Title Case</button>
+        <button class="case-btn" data-case="sentence">Sentence case</button>
+      </div>
+      <div class="textarea-wrap">
+        <textarea id="caseTextArea" readonly style="background:#f4f8fb;"></textarea>
+      </div>
+    </section>
+    <section class="tool-card" id="download-tool" style="display:none;">
+      <h1>Download Text</h1>
+      <div class="controls">
+        <button class="action-btn" id="downloadBtn">Download as .txt</button>
+      </div>
+      <div class="textarea-wrap">
+        <textarea id="downloadTextArea" readonly style="background:#f4f8fb;"></textarea>
+      </div>
+    </section>
+  </main>
+  <script>
+        // --- Firebase Config (replace with your own config from Firebase Console) ---
+        const firebaseConfig = {
+            apiKey: "AIzaSyDrtYupy_VioRO_TT1JaB70hs8aokaGjwE",
+            authDomain: "wordflow-c8def.firebaseapp.com",
+            projectId: "wordflow-c8def",
+            storageBucket: "wordflow-c8def.firebasestorage.app",
+            messagingSenderId: "809263593669",
+            appId: "1:809263593669:web:239babbed156da292e98ac",
+            measurementId: "G-MTN4VSFQJP"
+        };
+    // --- Initialize Firebase ---
+    firebase.initializeApp(firebaseConfig);
+    const auth = firebase.auth();
+
+    // --- Auth UI Elements ---
+    const authContainer = document.getElementById('authContainer');
+    const googleSignInBtn = document.getElementById('googleSignInBtn');
+    const userInfo = document.getElementById('userInfo');
+    const userPic = document.getElementById('userPic');
+    const userName = document.getElementById('userName');
+    const signOutBtn = document.getElementById('signOutBtn');
+    const sidebar = document.getElementById('sidebar');
+    const mainDashboard = document.getElementById('mainDashboard');
+
+    // --- Google Sign-In ---
+    googleSignInBtn.onclick = function() {
+      const provider = new firebase.auth.GoogleAuthProvider();
+      auth.signInWithPopup(provider).catch(function(error) {
+        alert('Sign in failed: ' + error.message);
+      });
+    };
+    // --- Sign Out ---
+    signOutBtn.onclick = function() {
+      auth.signOut();
+    };
+    // --- Auth State Listener ---
+    auth.onAuthStateChanged(function(user) {
+      if (user) {
+        // Signed in
+        authContainer.style.display = 'none';
+        sidebar.style.display = '';
+        mainDashboard.style.display = '';
+        userInfo.style.display = 'flex';
+        userPic.src = user.photoURL;
+        userName.textContent = user.displayName;
+      } else {
+        // Signed out
+        authContainer.style.display = 'flex';
+        sidebar.style.display = 'none';
+        mainDashboard.style.display = 'none';
+        userInfo.style.display = 'none';
+        userPic.src = '';
+        userName.textContent = '';
+      }
+    });
+
+    // --- Shared State ---
+    let mainText = '';
+    // --- Sidebar Navigation ---
+    const navBtns = document.querySelectorAll('.nav-btn');
+    const toolSections = {
+      wordcount: document.getElementById('wordcount-tool'),
+      search: document.getElementById('search-tool'),
+      replace: document.getElementById('replace-tool'),
+      stats: document.getElementById('stats-tool'),
+      case: document.getElementById('case-tool'),
+      download: document.getElementById('download-tool'),
+    };
+    function showTool(tool) {
+      Object.entries(toolSections).forEach(([k, sec]) => {
+        sec.style.display = (k === tool) ? '' : 'none';
+      });
+      navBtns.forEach(btn => btn.classList.toggle('active', btn.dataset.tool === tool));
+      // Sync text to each tool
+      syncAllTools();
+    }
+    navBtns.forEach(btn => {
+      btn.addEventListener('click', () => showTool(btn.dataset.tool));
+    });
+    // --- Word Count Tool ---
+    const textInput = document.getElementById('textInput');
+    const wordCount = document.getElementById('wordCount');
+    const charCount = document.getElementById('charCount');
+    const fileInput = document.getElementById('fileInput');
+    const clearBtn = document.getElementById('clearBtn');
+    const copyBtn = document.getElementById('copyBtn');
+    const toast = document.getElementById('toast');
+    let lastWordCount = 0, lastCharCount = 0, toastTimeout = null;
+    function animateCount(el, newCount, lastCount) {
+      if (newCount !== lastCount) {
+        el.classList.add('count-animate');
+        setTimeout(() => el.classList.remove('count-animate'), 350);
+      }
+    }
+    function updateCounts() {
+      const text = textInput.value.trim();
+      let words = 0;
+      let chars = textInput.value.length;
+      if (text.length > 0) {
+        words = text.split(/\s+/).length;
+      }
+      animateCount(wordCount, words, lastWordCount);
+      animateCount(charCount, chars, lastCharCount);
+      wordCount.textContent = `Word Count: ${words}`;
+      charCount.textContent = `Characters: ${chars}`;
+      lastWordCount = words;
+      lastCharCount = chars;
+      mainText = textInput.value;
+      syncAllTools();
+    }
+    textInput.addEventListener('input', updateCounts);
+    fileInput.addEventListener('change', function() {
+      const file = this.files[0];
+      if (file && file.type === "text/plain") {
+        const reader = new FileReader();
+        reader.onload = function(e) {
+          textInput.value = e.target.result;
+          updateCounts();
+          highlightTextarea(textInput);
+        };
+        reader.readAsText(file);
+      } else if (file) {
+        showToast('Please select a .txt file.', true);
+        fileInput.value = '';
+      }
+    });
+    clearBtn.addEventListener('click', () => {
+      textInput.value = '';
+      updateCounts();
+      highlightTextarea(textInput);
+    });
+    copyBtn.addEventListener('click', () => {
+      textInput.select();
+      document.execCommand('copy');
+      showToast('Copied!');
+      highlightTextarea(textInput);
+    });
+    function showToast(message, isError = true) {
+      toast.textContent = message;
+      toast.style.background = isError ? 'var(--danger)' : 'var(--accent)';
+      toast.classList.add('show');
+      if (toastTimeout) clearTimeout(toastTimeout);
+      toastTimeout = setTimeout(() => {
+        toast.classList.remove('show');
+      }, 1700);
+    }
+    function highlightTextarea(el) {
+      el.classList.add('highlight');
+      setTimeout(() => el.classList.remove('highlight'), 500);
+    }
+    // --- Search Tool ---
+    const searchInput = document.getElementById('searchInput');
+    const searchBtn = document.getElementById('searchBtn');
+    const searchTextArea = document.getElementById('searchTextArea');
+    const searchCount = document.getElementById('searchCount');
+    function highlightAll(text, search) {
+      if (!search) return text;
+      const esc = search.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+      return text.replace(new RegExp(esc, 'gi'), match => `<span class=\"highlight-search\">${match}</span>`);
+    }
+    function updateSearch() {
+      const search = searchInput.value;
+      const text = mainText;
+      if (!search) {
+        searchTextArea.value = text;
+        searchCount.textContent = 'Matches: 0';
+        return;
+      }
+      const regex = new RegExp(search.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'), 'gi');
+      const matches = text.match(regex);
+      searchCount.textContent = `Matches: ${matches ? matches.length : 0}`;
+      // For display, highlight in a div, then set textarea value (strip tags for textarea)
+      const highlighted = highlightAll(text, search);
+      // Show highlighted in a div overlay
+      const tempDiv = document.createElement('div');
+      tempDiv.innerHTML = highlighted.replace(/\n/g, '<br>');
+      searchTextArea.value = tempDiv.textContent;
+      // For real highlight, would use a contenteditable div, but for now, just show count
+    }
+    searchBtn.addEventListener('click', updateSearch);
+    searchInput.addEventListener('input', updateSearch);
+    // --- Replace Tool ---
+    const findInput = document.getElementById('findInput');
+    const replaceInput = document.getElementById('replaceInput');
+    const replaceBtn = document.getElementById('replaceBtn');
+    const replaceTextArea = document.getElementById('replaceTextArea');
+    const replaceCount = document.getElementById('replaceCount');
+    function updateReplace() {
+      const find = findInput.value;
+      const replace = replaceInput.value;
+      let text = mainText;
+      if (!find) {
+        replaceTextArea.value = text;
+        replaceCount.textContent = 'Replacements: 0';
+        return;
+      }
+      const regex = new RegExp(find.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'), 'gi');
+      const matches = text.match(regex);
+      replaceCount.textContent = `Replacements: ${matches ? matches.length : 0}`;
+      if (matches) {
+        text = text.replace(regex, replace);
+      }
+      replaceTextArea.value = text;
+    }
+    findInput.addEventListener('input', updateReplace);
+    replaceInput.addEventListener('input', updateReplace);
+    replaceBtn.addEventListener('click', () => {
+      // Apply replace to main text
+      const find = findInput.value;
+      const replace = replaceInput.value;
+      if (!find) return;
+      const regex = new RegExp(find.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'), 'gi');
+      mainText = mainText.replace(regex, replace);
+      textInput.value = mainText;
+      updateCounts();
+      showToast('Replaced!');
+      syncAllTools();
+    });
+    // --- Statistics Tool ---
+    const statsTextArea = document.getElementById('statsTextArea');
+    const sentenceCount = document.getElementById('sentenceCount');
+    const paraCount = document.getElementById('paraCount');
+    const readingTime = document.getElementById('readingTime');
+    function updateStats() {
+      const text = mainText;
+      const sentences = (text.match(/[^.!?]+[.!?]+/g) || []).length;
+      const paragraphs = (text.split(/\n{2,}/).filter(p => p.trim().length > 0)).length;
+      const words = text.trim().length > 0 ? text.trim().split(/\s+/).length : 0;
+      const chars = text.length;
+      const wpm = 200;
+      const mins = Math.ceil(words / wpm);
+      statsTextArea.value = text;
+      sentenceCount.textContent = `Sentences: ${sentences}`;
+      paraCount.textContent = `Paragraphs: ${paragraphs}`;
+      readingTime.textContent = `Reading Time: ${mins} min`;
+    }
+    // --- Case Converter Tool ---
+    const caseTextArea = document.getElementById('caseTextArea');
+    const caseBtns = document.querySelectorAll('.case-btn');
+    function toTitleCase(str) {
+      return str.replace(/\w\S*/g, w => w.charAt(0).toUpperCase() + w.substr(1).toLowerCase());
+    }
+    function toSentenceCase(str) {
+      return str.replace(/(^|[.!?]\s+)([a-z])/g, (m, p1, p2) => p1 + p2.toUpperCase());
+    }
+    caseBtns.forEach(btn => {
+      btn.addEventListener('click', () => {
+        let text = mainText;
+        switch (btn.dataset.case) {
+          case 'upper': text = text.toUpperCase(); break;
+          case 'lower': text = text.toLowerCase(); break;
+          case 'title': text = toTitleCase(text); break;
+          case 'sentence': text = toSentenceCase(text); break;
+        }
+        caseTextArea.value = text;
+        showToast('Converted!');
+      });
+    });
+    // --- Download Tool ---
+    const downloadBtn = document.getElementById('downloadBtn');
+    const downloadTextArea = document.getElementById('downloadTextArea');
+    downloadBtn.addEventListener('click', () => {
+      const blob = new Blob([mainText], {type: 'text/plain'});
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = 'text.txt';
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      URL.revokeObjectURL(url);
+      showToast('Downloaded!');
+    });
+    // --- Sync All Tools ---
+    function syncAllTools() {
+      // Sync text to all tool textareas
+      searchTextArea.value = mainText;
+      replaceTextArea.value = mainText;
+      statsTextArea.value = mainText;
+      caseTextArea.value = mainText;
+      downloadTextArea.value = mainText;
+      updateSearch();
+      updateReplace();
+      updateStats();
+    }
+    // --- Initial Setup ---
+    showTool('wordcount');
+    updateCounts();
+    // Accessibility: allow tab to buttons
+    [clearBtn, copyBtn, fileInput, textInput].forEach(el => {
+      el.tabIndex = 0;
+    });
+  </script>
+</body>
+</html> 
