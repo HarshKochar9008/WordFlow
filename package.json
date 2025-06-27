@@ -1,0 +1,23 @@
+{
+  "name": "wordflow",
+  "version": "1.0.0",
+  "description": "WordFlow - Text Processing Tool with Firebase Authentication",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js",
+    "dev": "node server.js"
+  },
+  "keywords": [
+    "text-processing",
+    "firebase",
+    "authentication",
+    "word-count",
+    "ai-writer"
+  ],
+  "author": "WordFlow Team",
+  "license": "MIT",
+  "dependencies": {},
+  "engines": {
+    "node": ">=14.0.0"
+  }
+} 

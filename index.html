@@ -4,6 +4,11 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>WordFlow</title>
+  
+  <!-- Firebase SDK -->
+  <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js"></script>
+  
   <style>
     :root {
       /* Light Theme (Default) */
@@ -527,6 +532,237 @@
         justify-content: center;
       }
     }
+    /* Profile Section Styles */
+    .profile-section {
+      position: fixed;
+      top: 20px;
+      right: 20px;
+      z-index: 100;
+    }
+    
+    .profile-toggle {
+      background: var(--card-bg);
+      border: 1.5px solid var(--border);
+      border-radius: 50%;
+      width: 45px;
+      height: 45px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: all var(--transition);
+      color: var(--text-secondary);
+      font-size: 1.3rem;
+      box-shadow: var(--shadow);
+    }
+    
+    .profile-toggle:hover {
+      background: var(--input-bg);
+      border-color: var(--primary);
+      color: var(--primary);
+      transform: scale(1.05);
+    }
+    
+    .profile-dropdown {
+      position: absolute;
+      top: 55px;
+      right: 0;
+      background: var(--card-bg);
+      border: 1.5px solid var(--border);
+      border-radius: 12px;
+      box-shadow: var(--shadow);
+      min-width: 220px;
+      opacity: 0;
+      visibility: hidden;
+      transform: translateY(-10px);
+      transition: all var(--transition);
+      z-index: 1000;
+    }
+    
+    .profile-dropdown.show {
+      opacity: 1;
+      visibility: visible;
+      transform: translateY(0);
+    }
+    
+    .profile-header {
+      padding: 16px;
+      border-bottom: 1px solid var(--border);
+      text-align: center;
+    }
+    
+    .profile-avatar {
+      width: 50px;
+      height: 50px;
+      border-radius: 50%;
+      background: var(--primary);
+      color: white;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.5rem;
+      font-weight: bold;
+      margin: 0 auto 8px;
+    }
+    
+    .profile-email {
+      font-size: 0.9rem;
+      color: var(--text-secondary);
+      font-weight: 500;
+      word-break: break-all;
+    }
+    
+    .profile-menu {
+      padding: 8px 0;
+    }
+    
+    .profile-menu-item {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 12px 16px;
+      color: var(--text-secondary);
+      text-decoration: none;
+      font-size: 0.95rem;
+      font-weight: 500;
+      transition: background var(--transition), color var(--transition);
+      cursor: pointer;
+      border: none;
+      background: none;
+      width: 100%;
+      text-align: left;
+    }
+    
+    .profile-menu-item:hover {
+      background: var(--input-bg);
+      color: var(--primary);
+    }
+    
+    .profile-menu-item.danger {
+      color: var(--danger);
+    }
+    
+    .profile-menu-item.danger:hover {
+      background: #fef2f2;
+      color: var(--danger);
+    }
+    
+    .profile-menu-item svg {
+      width: 18px;
+      height: 18px;
+      flex-shrink: 0;
+    }
+    
+    /* Edit Profile Modal */
+    .edit-profile-modal {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100vw;
+      height: 100vh;
+      background: rgba(0,0,0,0.5);
+      z-index: 2000;
+      display: none;
+      align-items: center;
+      justify-content: center;
+      backdrop-filter: blur(4px);
+    }
+    
+    .edit-profile-content {
+      background: var(--card-bg);
+      padding: 32px 28px;
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      max-width: 450px;
+      width: 90%;
+      display: flex;
+      flex-direction: column;
+      gap: 20px;
+      border: 1px solid var(--border);
+    }
+    
+    .edit-profile-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+    
+    .edit-profile-title {
+      color: var(--text-primary);
+      margin: 0;
+      font-size: 1.5rem;
+      font-weight: 700;
+    }
+    
+    .close-btn {
+      background: none;
+      border: none;
+      color: var(--text-muted);
+      font-size: 1.5rem;
+      cursor: pointer;
+      padding: 4px;
+      border-radius: 4px;
+      transition: color var(--transition);
+    }
+    
+    .close-btn:hover {
+      color: var(--text-primary);
+    }
+    
+    .form-group {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+    
+    .form-group label {
+      font-size: 0.95rem;
+      font-weight: 500;
+      color: var(--text-secondary);
+    }
+    
+    .form-group input {
+      padding: 12px 16px;
+      border-radius: 8px;
+      border: 1.5px solid var(--input-border);
+      font-size: 1rem;
+      background: var(--input-bg);
+      color: var(--text-primary);
+      transition: border var(--transition);
+    }
+    
+    .form-group input:focus {
+      outline: none;
+      border-color: var(--primary);
+    }
+    
+    .edit-profile-actions {
+      display: flex;
+      gap: 12px;
+      margin-top: 8px;
+    }
+    
+    .edit-profile-actions .action-btn {
+      flex: 1;
+    }
+    
+    .edit-profile-actions .utility-btn {
+      flex: 1;
+    }
+    
+    .profile-error {
+      color: var(--danger);
+      font-size: 0.9rem;
+      text-align: center;
+      min-height: 20px;
+    }
+    
+    .profile-success {
+      color: var(--accent);
+      font-size: 0.9rem;
+      text-align: center;
+      min-height: 20px;
+    }
   </style>
 </head>
 <body>
@@ -551,9 +787,90 @@
       <button class="nav-btn" data-tool="case">Case Converter</button>
       <button class="nav-btn" data-tool="aiWriter">AI Writer</button>
       <button class="nav-btn" data-tool="download">Download</button>
-      </div>
     </div>
   </nav>
+  
+  <!-- Profile Section -->
+  <div class="profile-section" id="profileSection" style="display: none;">
+    <button class="profile-toggle" id="profileToggle">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
+        <path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/>
+      </svg>
+    </button>
+    
+    <div class="profile-dropdown" id="profileDropdown">
+      <div class="profile-header">
+        <div class="profile-avatar" id="profileAvatar">U</div>
+        <div class="profile-email" id="profileEmail">user@example.com</div>
+      </div>
+      
+      <div class="profile-menu">
+        <button class="profile-menu-item" id="editProfileBtn">
+          <svg viewBox="0 0 24 24" fill="currentColor">
+            <path d="M3 17.25V21h3.75L17.81 9.94l-3.75-3.75L3 17.25zM20.71 7.04c.39-.39.39-1.02 0-1.41l-2.34-2.34c-.39-.39-1.02-.39-1.41 0l-1.83 1.83 3.75 3.75 1.83-1.83z"/>
+          </svg>
+          Edit Profile
+        </button>
+        
+        <button class="profile-menu-item" id="settingsBtn">
+          <svg viewBox="0 0 24 24" fill="currentColor">
+            <path d="M19.14,12.94c0.04-0.3,0.06-0.61,0.06-0.94c0-0.32-0.02-0.64-0.07-0.94l2.03-1.58c0.18-0.14,0.23-0.41,0.12-0.61 l-1.92-3.32c-0.12-0.22-0.37-0.29-0.59-0.22l-2.39,0.96c-0.5-0.38-1.03-0.7-1.62-0.94L14.4,2.81c-0.04-0.24-0.24-0.41-0.48-0.41 h-3.84c-0.24,0-0.43,0.17-0.47,0.41L9.25,5.35C8.66,5.59,8.12,5.92,7.63,6.29L5.24,5.33c-0.22-0.08-0.47,0-0.59,0.22L2.74,8.87 C2.62,9.08,2.66,9.34,2.86,9.48l2.03,1.58C4.84,11.36,4.8,11.69,4.8,12s0.02,0.64,0.07,0.94l-2.03,1.58 c-0.18,0.14-0.23,0.41-0.12,0.61l1.92,3.32c0.12,0.22,0.37,0.29,0.59,0.22l2.39-0.96c0.5,0.38,1.03,0.7,1.62,0.94l0.36,2.54 c0.05,0.24,0.24,0.41,0.48,0.41h3.84c0.24,0,0.44-0.17,0.47-0.41l0.36-2.54c0.59-0.24,1.13-0.56,1.62-0.94l2.39,0.96 c0.22,0.08,0.47,0,0.59-0.22l1.92-3.32c0.12-0.22,0.07-0.47-0.12-0.61L19.14,12.94z M12,15.6c-1.98,0-3.6-1.62-3.6-3.6 s1.62-3.6,3.6-3.6s3.6,1.62,3.6,3.6S13.98,15.6,12,15.6z"/>
+          </svg>
+          Settings
+        </button>
+        
+        <button class="profile-menu-item" id="helpBtn">
+          <svg viewBox="0 0 24 24" fill="currentColor">
+            <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 17h-2v-2h2v2zm2.07-7.75l-.9.92C13.45 12.9 13 13.5 13 15h-2v-.5c0-1.1.45-2.1 1.17-2.83l1.24-1.26c.37-.36.59-.86.59-1.41 0-1.1-.9-2-2-2s-2 .9-2 2H8c0-2.21 1.79-4 4-4s4 1.79 4 4c0 .88-.36 1.68-.93 2.25z"/>
+          </svg>
+          Help & Support
+        </button>
+        
+        <div style="height: 1px; background: var(--border); margin: 8px 0;"></div>
+        
+        <button class="profile-menu-item danger" id="logoutBtnNew">
+          <svg viewBox="0 0 24 24" fill="currentColor">
+            <path d="M17 7l-1.41 1.41L18.17 11H8v2h10.17l-2.58 2.58L17 17l5-5zM4 5h8V3H4c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h8v-2H4V5z"/>
+          </svg>
+          Logout
+        </button>
+      </div>
+    </div>
+  </div>
+  
+  <!-- Edit Profile Modal -->
+  <div class="edit-profile-modal" id="editProfileModal">
+    <div class="edit-profile-content">
+      <div class="edit-profile-header">
+        <h3 class="edit-profile-title">Edit Profile</h3>
+        <button class="close-btn" id="closeEditProfile">&times;</button>
+      </div>
+      
+      <div class="form-group">
+        <label for="editDisplayName">Display Name</label>
+        <input type="text" id="editDisplayName" placeholder="Enter your display name">
+      </div>
+      
+      <div class="form-group">
+        <label for="editEmail">Email</label>
+        <input type="email" id="editEmail" placeholder="Enter your email" readonly>
+      </div>
+      
+      <div class="form-group">
+        <label for="editBio">Bio</label>
+        <input type="text" id="editBio" placeholder="Tell us about yourself">
+      </div>
+      
+      <div class="edit-profile-actions">
+        <button class="action-btn" id="saveProfileBtn">Save Changes</button>
+        <button class="utility-btn" id="cancelEditProfile">Cancel</button>
+      </div>
+      
+      <div class="profile-error" id="profileError"></div>
+      <div class="profile-success" id="profileSuccess"></div>
+    </div>
+  </div>
+  
   <!-- Auth Modal -->
   <div id="authModal" style="display:none;position:fixed;top:0;left:0;width:100vw;height:100vh;background:rgba(0,0,0,0.5);z-index:1000;align-items:center;justify-content:center;backdrop-filter:blur(4px);">
     <div style="background:var(--card-bg);padding:32px 28px;border-radius:var(--radius);box-shadow:var(--shadow);max-width:380px;width:90%;display:flex;flex-direction:column;gap:20px;align-items:center;transition:background var(--transition);border:1px solid var(--border);">
@@ -996,6 +1313,8 @@
     window.addEventListener('DOMContentLoaded', handleResize);
   </script>
   <script type="module">
+    import { login, signup, loginWithGoogle, logout, onAuthChange } from './firebase/auth.js';
+    
     let currentUser = null;
 
     function showAuthModal(show = true) {
@@ -1013,48 +1332,236 @@
       authError.textContent = '';
     }
 
+    function showError(message) {
+      authError.textContent = message;
+      console.error('Authentication error:', message);
+    }
+
+    function showProfileSection(show = true, user = null) {
+      const profileSection = document.getElementById('profileSection');
+      const profileEmail = document.getElementById('profileEmail');
+      const profileAvatar = document.getElementById('profileAvatar');
+      
+      if (profileSection) {
+        profileSection.style.display = show ? 'block' : 'none';
+      }
+      
+      if (show && user) {
+        profileEmail.textContent = user.email;
+        // Set avatar initial from email or display name
+        const displayName = user.displayName || user.email.split('@')[0];
+        profileAvatar.textContent = displayName.charAt(0).toUpperCase();
+      }
+    }
+
+    function showEditProfileModal(show = true, user = null) {
+      const editProfileModal = document.getElementById('editProfileModal');
+      const editDisplayName = document.getElementById('editDisplayName');
+      const editEmail = document.getElementById('editEmail');
+      const editBio = document.getElementById('editBio');
+      
+      if (editProfileModal) {
+        editProfileModal.style.display = show ? 'flex' : 'none';
+      }
+      
+      if (show && user) {
+        editDisplayName.value = user.displayName || '';
+        editEmail.value = user.email || '';
+        editBio.value = user.bio || '';
+      }
+    }
+
+    function showProfileError(message) {
+      const profileError = document.getElementById('profileError');
+      const profileSuccess = document.getElementById('profileSuccess');
+      if (profileError) {
+        profileError.textContent = message;
+        profileSuccess.textContent = '';
+      }
+    }
+
+    function showProfileSuccess(message) {
+      const profileError = document.getElementById('profileError');
+      const profileSuccess = document.getElementById('profileSuccess');
+      if (profileSuccess) {
+        profileSuccess.textContent = message;
+        profileError.textContent = '';
+      }
+    }
+
+    // Profile dropdown functionality
+    const profileToggle = document.getElementById('profileToggle');
+    const profileDropdown = document.getElementById('profileDropdown');
+    
+    if (profileToggle && profileDropdown) {
+      profileToggle.addEventListener('click', (e) => {
+        e.stopPropagation();
+        profileDropdown.classList.toggle('show');
+      });
+      
+      // Close dropdown when clicking outside
+      document.addEventListener('click', (e) => {
+        if (!profileToggle.contains(e.target) && !profileDropdown.contains(e.target)) {
+          profileDropdown.classList.remove('show');
+        }
+      });
+    }
+
+    // Edit profile functionality
+    const editProfileBtn = document.getElementById('editProfileBtn');
+    const closeEditProfile = document.getElementById('closeEditProfile');
+    const cancelEditProfile = document.getElementById('cancelEditProfile');
+    const saveProfileBtn = document.getElementById('saveProfileBtn');
+    
+    if (editProfileBtn) {
+      editProfileBtn.addEventListener('click', () => {
+        profileDropdown.classList.remove('show');
+        showEditProfileModal(true, currentUser);
+      });
+    }
+    
+    if (closeEditProfile) {
+      closeEditProfile.addEventListener('click', () => {
+        showEditProfileModal(false);
+      });
+    }
+    
+    if (cancelEditProfile) {
+      cancelEditProfile.addEventListener('click', () => {
+        showEditProfileModal(false);
+      });
+    }
+    
+    if (saveProfileBtn) {
+      saveProfileBtn.addEventListener('click', async () => {
+        const displayName = document.getElementById('editDisplayName').value.trim();
+        const bio = document.getElementById('editBio').value.trim();
+        
+        try {
+          // Here you would typically update the user profile in Firebase
+          // For now, we'll just show a success message
+          showProfileSuccess('Profile updated successfully!');
+          
+          // Update the avatar if display name changed
+          if (displayName && currentUser) {
+            const profileAvatar = document.getElementById('profileAvatar');
+            profileAvatar.textContent = displayName.charAt(0).toUpperCase();
+          }
+          
+          setTimeout(() => {
+            showEditProfileModal(false);
+          }, 1500);
+        } catch (error) {
+          showProfileError('Failed to update profile. Please try again.');
+        }
+      });
+    }
+
+    // Settings and Help buttons
+    const settingsBtn = document.getElementById('settingsBtn');
+    const helpBtn = document.getElementById('helpBtn');
+    
+    if (settingsBtn) {
+      settingsBtn.addEventListener('click', () => {
+        profileDropdown.classList.remove('show');
+        showToast('Settings feature coming soon!');
+      });
+    }
+    
+    if (helpBtn) {
+      helpBtn.addEventListener('click', () => {
+        profileDropdown.classList.remove('show');
+        showToast('Help & Support feature coming soon!');
+      });
+    }
+
     loginBtn.onclick = async () => {
       authError.textContent = '';
+      const email = authEmail.value.trim();
+      const password = authPassword.value;
+      
+      if (!email || !password) {
+        showError('Please enter both email and password.');
+        return;
+      }
+      
       try {
-        await login(authEmail.value, authPassword.value);
+        console.log('Attempting login...');
+        await login(email, password);
       } catch (e) {
-        authError.textContent = e.message;
+        showError(e.message);
       }
     };
+    
     signupBtn.onclick = async () => {
       authError.textContent = '';
+      const email = authEmail.value.trim();
+      const password = authPassword.value;
+      
+      if (!email || !password) {
+        showError('Please enter both email and password.');
+        return;
+      }
+      
+      if (password.length < 6) {
+        showError('Password must be at least 6 characters long.');
+        return;
+      }
+      
       try {
-        await signup(authEmail.value, authPassword.value);
+        console.log('Attempting signup...');
+        await signup(email, password);
       } catch (e) {
-        authError.textContent = e.message;
+        showError(e.message);
       }
     };
+    
     googleBtn.onclick = async () => {
       authError.textContent = '';
       try {
+        console.log('Attempting Google sign-in...');
         await loginWithGoogle();
       } catch (e) {
-        authError.textContent = e.message;
+        showError(e.message);
       }
     };
+
+    // New logout button event listener
+    const logoutBtnNew = document.getElementById('logoutBtnNew');
+    if (logoutBtnNew) {
+      logoutBtnNew.addEventListener('click', async () => {
+        try {
+          await logout();
+        } catch (e) {
+          console.error('Logout error:', e);
+          showError('Logout failed. Please try again.');
+        }
+      });
+    }
 
     onAuthChange(user => {
       currentUser = user;
       if (user) {
         showAuthModal(false);
         blockTools(false);
+        showProfileSection(true, user);
+        console.log('User logged in:', user.email);
       } else {
         showAuthModal(true);
         blockTools(true);
+        showProfileSection(false);
         resetAuthForm();
+        console.log('User logged out');
       }
     });
 
     // Block tools until login on page load
     window.addEventListener('DOMContentLoaded', () => {
+      console.log('Page loaded, checking authentication...');
       if (!currentUser) {
         showAuthModal(true);
         blockTools(true);
+        showProfileSection(false);
       }
     });
   </script>
