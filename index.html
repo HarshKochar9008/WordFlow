@@ -6,23 +6,51 @@
   <title>WordFlow</title>
   <style>
     :root {
+      /* Light Theme (Default) */
       --primary: #0066cc;
       --primary-dark: #0052a3;
       --accent: #00b894;
       --danger: #e74c3c;
       --bg: #f8fafd;
       --sidebar: #fff;
+      --card-bg: #fff;
+      --text-primary: #222;
+      --text-secondary: #333;
+      --text-muted: #666;
+      --border: #cfd8dc;
+      --input-bg: #f4f8fb;
+      --input-border: #cfd8dc;
       --shadow: 0 8px 32px rgba(0,0,0,0.10);
       --radius: 18px;
       --transition: 0.18s;
     }
+
+    /* Dark Theme */
+    [data-theme="dark"] {
+      --primary: #4dabf7;
+      --primary-dark: #339af0;
+      --accent: #51cf66;
+      --danger: #ff6b6b;
+      --bg: #1a1a1a;
+      --sidebar: #2d2d2d;
+      --card-bg: #2d2d2d;
+      --text-primary: #ffffff;
+      --text-secondary: #e9ecef;
+      --text-muted: #adb5bd;
+      --border: #495057;
+      --input-bg: #343a40;
+      --input-border: #495057;
+      --shadow: 0 8px 32px rgba(0,0,0,0.30);
+    }
+
     html, body {
       height: 100%;
       margin: 0;
       padding: 0;
       font-family: 'Segoe UI', Arial, sans-serif;
       background: var(--bg);
-      color: #222;
+      color: var(--text-primary);
+      transition: background var(--transition), color var(--transition);
     }
     body {
       min-height: 100vh;
@@ -30,7 +58,7 @@
       flex-direction: row;
     }
     .sidebar {
-      width: 220px;
+      width: 260px;
       background: var(--sidebar);
       box-shadow: 2px 0 16px rgba(0,0,0,0.04);
       display: flex;
@@ -43,6 +71,7 @@
       left: 0;
       top: 0;
       z-index: 10;
+      transition: background var(--transition), box-shadow var(--transition);
     }
     .sidebar h2 {
       text-align: center;
@@ -51,6 +80,7 @@
       margin-bottom: 32px;
       font-weight: 800;
       letter-spacing: 1px;
+      transition: color var(--transition);
     }
     .nav {
       display: flex;
@@ -61,7 +91,7 @@
     .nav-btn {
       background: none;
       border: none;
-      color: #333;
+      color: var(--text-secondary);
       font-size: 1.08rem;
       padding: 12px 18px;
       border-radius: 8px;
@@ -75,6 +105,28 @@
       color: #fff;
       outline: none;
     }
+    .theme-toggle {
+      position: absolute;
+      top: 20px;
+      right: 20px;
+      background: var(--card-bg);
+      border: 1.5px solid var(--border);
+      border-radius: 50%;
+      width: 40px;
+      height: 40px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: background var(--transition), border var(--transition);
+      color: var(--text-secondary);
+      font-size: 1.2rem;
+    }
+    .theme-toggle:hover {
+      background: var(--input-bg);
+      border-color: var(--primary);
+      color: var(--primary);
+    }
     .main {
       margin-left: 240px;
       flex: 1;
@@ -85,7 +137,7 @@
       min-height: 100vh;
     }
     .tool-card {
-      background: #fff;
+      background: var(--card-bg);
       border-radius: var(--radius);
       box-shadow: var(--shadow);
       padding: 36px 28px 28px 28px;
@@ -96,7 +148,7 @@
       flex-direction: column;
       gap: 24px;
       position: relative;
-      transition: box-shadow var(--transition);
+      transition: box-shadow var(--transition), background var(--transition);
     }
     .tool-card h1 {
       color: var(--primary);
@@ -105,6 +157,7 @@
       text-align: center;
       font-weight: 800;
       letter-spacing: 1px;
+      transition: color var(--transition);
     }
     .controls, .replace-controls {
       display: flex;
@@ -117,6 +170,7 @@
       font-size: 1rem;
       border: none;
       background: none;
+      color: var(--text-secondary);
     }
     .action-btn, .replace-btn {
       background: var(--primary);
@@ -146,22 +200,23 @@
       font-size: 1.13rem;
       padding: 16px 14px;
       border-radius: 10px;
-      border: 1.5px solid #cfd8dc;
+      border: 1.5px solid var(--input-border);
       resize: vertical;
-      background: #f4f8fb;
-      transition: border 0.2s, box-shadow 0.2s;
+      background: var(--input-bg);
+      color: var(--text-primary);
+      transition: border 0.2s, box-shadow 0.2s, background var(--transition), color var(--transition);
       font-family: inherit;
       box-sizing: border-box;
     }
     textarea:focus {
       border: 2px solid var(--primary);
       outline: none;
-      background: #fff;
-      box-shadow: 0 2px 12px #e3eaf5;
+      background: var(--card-bg);
+      box-shadow: 0 2px 12px rgba(0,102,204,0.1);
     }
     .highlight {
       border: 2px solid var(--accent) !important;
-      box-shadow: 0 0 0 2px #b2f7e2;
+      box-shadow: 0 0 0 2px rgba(0,184,148,0.2);
       transition: border 0.2s, box-shadow 0.2s;
     }
     .count-row {
@@ -176,6 +231,7 @@
       font-weight: bold;
       color: var(--primary);
       user-select: none;
+      transition: color var(--transition);
     }
     .count-animate {
       color: var(--accent) !important;
@@ -186,9 +242,9 @@
       gap: 10px;
     }
     .utility-btn {
-      background: #f4f8fb;
+      background: var(--input-bg);
       color: var(--primary);
-      border: 1.2px solid #cfd8dc;
+      border: 1.2px solid var(--input-border);
       border-radius: 7px;
       padding: 7px 14px;
       font-size: 1rem;
@@ -198,7 +254,7 @@
       outline: none;
     }
     .utility-btn:hover, .utility-btn:focus {
-      background: #e3eaf5;
+      background: var(--card-bg);
       border: 1.5px solid var(--primary);
       color: var(--primary-dark);
     }
@@ -217,7 +273,7 @@
       pointer-events: none;
       transition: opacity 0.3s, bottom 0.3s;
       z-index: 10;
-      box-shadow: 0 2px 12px #b2f7e2;
+      box-shadow: 0 2px 12px rgba(0,184,148,0.3);
     }
     .toast.show {
       opacity: 1;
@@ -249,9 +305,9 @@
       flex-wrap: wrap;
     }
     .case-btn {
-      background: #f4f8fb;
+      background: var(--input-bg);
       color: var(--primary);
-      border: 1.2px solid #cfd8dc;
+      border: 1.2px solid var(--input-border);
       border-radius: 7px;
       padding: 7px 14px;
       font-size: 1rem;
@@ -261,9 +317,98 @@
       outline: none;
     }
     .case-btn:hover, .case-btn:focus {
-      background: #e3eaf5;
+      background: var(--card-bg);
       border: 1.5px solid var(--primary);
       color: var(--primary-dark);
+    }
+    .prompt-btn {
+      background: var(--input-bg);
+      color: var(--primary);
+      border: 1.2px solid var(--input-border);
+      border-radius: 7px;
+      padding: 8px 16px;
+      font-size: 0.95rem;
+      font-weight: 500;
+      cursor: pointer;
+      transition: background var(--transition), border var(--transition), color var(--transition);
+      outline: none;
+    }
+    .prompt-btn:hover, .prompt-btn:focus {
+      background: var(--card-bg);
+      border: 1.5px solid var(--primary);
+      color: var(--primary-dark);
+    }
+    .prompt-btn.active {
+      background: var(--primary);
+      color: #fff;
+      border-color: var(--primary);
+    }
+    .ai-status {
+      background: var(--input-bg);
+      border: 1.5px solid var(--input-border);
+      color: var(--text-secondary);
+      transition: background var(--transition), border var(--transition), color var(--transition);
+    }
+    .ai-status.loading {
+      background: #fff3cd;
+      border-color: #ffeaa7;
+      color: #856404;
+    }
+    .ai-status.success {
+      background: #d4edda;
+      border-color: #c3e6cb;
+      color: #155724;
+    }
+    .ai-status.error {
+      background: #f8d7da;
+      border-color: #f5c6cb;
+      color: #721c24;
+    }
+    .api-key-status {
+      padding: 8px 12px;
+      border-radius: 6px;
+      font-weight: 500;
+    }
+    .api-key-status.success {
+      background: #d4edda;
+      border: 1px solid #c3e6cb;
+      color: #155724;
+    }
+    .api-key-status.error {
+      background: #f8d7da;
+      border: 1px solid #f5c6cb;
+      color: #721c24;
+    }
+    .api-key-status.info {
+      background: #d1ecf1;
+      border: 1px solid #bee5eb;
+      color: #0c5460;
+    }
+    input[type="text"], input[type="email"], input[type="password"], input[type="number"], select {
+      background: var(--input-bg);
+      color: var(--text-primary);
+      border: 1.5px solid var(--input-border);
+      border-radius: 6px;
+      padding: 8px 12px;
+      font-size: 1rem;
+      transition: border var(--transition), background var(--transition), color var(--transition);
+    }
+    input[type="text"]:focus, input[type="email"]:focus, input[type="password"]:focus, input[type="number"]:focus, select:focus {
+      border-color: var(--primary);
+      outline: none;
+      background: var(--card-bg);
+    }
+    label {
+      color: var(--text-secondary);
+      transition: color var(--transition);
+    }
+    #dropZone {
+      border: 2px dashed var(--primary);
+      color: var(--text-secondary);
+      transition: background var(--transition), color var(--transition);
+    }
+    #dropZone:hover {
+      background: var(--input-bg);
     }
     @media (max-width: 900px) {
       .sidebar {
@@ -314,6 +459,12 @@
         left: 50% !important;
         transform: translateX(-50%) !important;
       }
+      .theme-toggle {
+        position: static;
+        margin: 0 8px;
+        top: 200px;
+        right: 20px;
+      }
     }
     @media (max-width: 600px) {
       .tool-card {
@@ -353,29 +504,80 @@
         font-size: 1rem;
         min-height: 120px;
       }
+      .ai-controls {
+        flex-direction: column;
+        align-items: stretch;
+      }
+      .ai-controls input[type="password"] {
+        min-width: unset;
+      }
+      .prompt-templates {
+        justify-content: center;
+      }
+      .prompt-btn {
+        font-size: 0.9rem;
+        padding: 6px 12px;
+      }
+      .ai-options {
+        flex-direction: column;
+        align-items: stretch;
+      }
+      .ai-actions {
+        flex-wrap: wrap;
+        justify-content: center;
+      }
     }
   </style>
 </head>
 <body>
   <nav class="sidebar" id="sidebarNav">
-    <div style="display:flex;align-items:center;justify-content:space-between;width:100%;">
+    <div style="display:flex;align-items:center;justify-content:space-between;width:100%;margin-bottom:10px;margin-top:10px;">
       <img src="WordFlow.png" alt="WordFlow Logo" style="display:block;width:80px;height:auto;margin:0 8px 0 8px;" />
-      <h2 style="flex:1;text-align:center;margin:0;">Text Tools</h2>
+      <h2 style="flex:1;text-align:center;margin:0;">WordFlow</h2>
       <button id="sidebarToggle" style="background:none;border:none;display:none;flex-direction:column;gap:3px;padding:8px 12px;cursor:pointer;outline:none;" aria-label="Toggle navigation">
-        <span style="width:24px;height:3px;background:#0066cc;display:block;border-radius:2px;"></span>
-        <span style="width:24px;height:3px;background:#0066cc;display:block;border-radius:2px;"></span>
-        <span style="width:24px;height:3px;background:#0066cc;display:block;border-radius:2px;"></span>
+        <span style="width:24px;height:3px;background:var(--primary);display:block;border-radius:2px;"></span>
+        <span style="width:24px;height:3px;background:var(--primary);display:block;border-radius:2px;"></span>
+        <span style="width:24px;height:3px;background:var(--primary);display:block;border-radius:2px;"></span>
       </button>
     </div>
+    <button class="theme-toggle" id="themeToggle" aria-label="Toggle theme">
+      <span id="themeIcon">🌙</span>
+    </button>
     <div class="nav" id="sidebarNavLinks">
       <button class="nav-btn active" data-tool="wordcount">Word Count</button>
       <button class="nav-btn" data-tool="search">Search</button>
       <button class="nav-btn" data-tool="replace">Replace</button>
       <button class="nav-btn" data-tool="stats">Statistics</button>
       <button class="nav-btn" data-tool="case">Case Converter</button>
+      <button class="nav-btn" data-tool="aiWriter">AI Writer</button>
       <button class="nav-btn" data-tool="download">Download</button>
+      </div>
     </div>
   </nav>
+  <!-- Auth Modal -->
+  <div id="authModal" style="display:none;position:fixed;top:0;left:0;width:100vw;height:100vh;background:rgba(0,0,0,0.5);z-index:1000;align-items:center;justify-content:center;backdrop-filter:blur(4px);">
+    <div style="background:var(--card-bg);padding:32px 28px;border-radius:var(--radius);box-shadow:var(--shadow);max-width:380px;width:90%;display:flex;flex-direction:column;gap:20px;align-items:center;transition:background var(--transition);border:1px solid var(--border);">
+      <h2 id="authTitle" style="color:var(--text-primary);transition:color var(--transition);margin:0;font-size:1.8rem;font-weight:700;">Sign In</h2>
+      <input id="authEmail" type="email" placeholder="Email" style="width:100%;padding:12px 16px;border-radius:8px;border:1.5px solid var(--input-border);font-size:1rem;background:var(--input-bg);color:var(--text-primary);transition:border var(--transition),background var(--transition);" />
+      <input id="authPassword" type="password" placeholder="Password" style="width:100%;padding:12px 16px;border-radius:8px;border:1.5px solid var(--input-border);font-size:1rem;background:var(--input-bg);color:var(--text-primary);transition:border var(--transition),background var(--transition);" />
+      <button id="loginBtn" class="action-btn" style="width:100%;padding:12px;font-size:1.1rem;">Login</button>
+      <button id="signupBtn" class="utility-btn" style="width:100%;padding:12px;font-size:1.1rem;">Sign Up</button>
+      <div style="width:100%;text-align:center;color:var(--text-muted);font-size:0.95rem;transition:color var(--transition);position:relative;">
+        <span style="background:var(--card-bg);padding:0 12px;">or</span>
+        <div style="position:absolute;top:50%;left:0;right:0;height:1px;background:var(--border);z-index:-1;"></div>
+      </div>
+      <button id="googleBtn" class="action-btn" style="width:100%;padding:12px;font-size:1.1rem;background:#4285F4;display:flex;align-items:center;justify-content:center;gap:8px;">
+        <svg width="18" height="18" viewBox="0 0 24 24">
+          <path fill="#fff" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/>
+          <path fill="#fff" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/>
+          <path fill="#fff" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"/>
+          <path fill="#fff" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/>
+        </svg>
+        Sign in with Google
+      </button>
+      <div id="authError" style="color:var(--danger);font-size:0.95rem;min-height:20px;text-align:center;font-weight:500;"></div>
+    </div>
+  </div>
   <main class="main">
     <section class="tool-card" id="wordcount-tool">
       <h1>Word Count Tool</h1>
@@ -444,6 +646,49 @@
         <textarea id="caseTextArea" readonly style="background:#f4f8fb;"></textarea>
       </div>
     </section>
+    <section class="tool-card" id="aiWriter-tool" style="display:none;">
+      <h1>AI-Powered Content Writer</h1>
+      <div class="ai-prompt-section" style="margin-bottom:20px;">
+        <div class="prompt-templates" style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:12px;">
+          <button class="prompt-btn" data-prompt="essay">Essay Writer</button>
+          <button class="prompt-btn" data-prompt="blog">Blog Post</button>
+          <button class="prompt-btn" data-prompt="story">Story Writer</button>
+          <button class="prompt-btn" data-prompt="email">Email Writer</button>
+          <button class="prompt-btn" data-prompt="summary">Text Summarizer</button>
+          <button class="prompt-btn" data-prompt="rewrite">Content Rewriter</button>
+        </div>
+        <div class="textarea-wrap">
+          <textarea id="promptInput" placeholder="Describe what you want to write about..." style="min-height:80px;font-size:1rem;padding:12px 14px;border:1.5px solid #cfd8dc;border-radius:10px;resize:vertical;background:#f4f8fb;font-family:inherit;box-sizing:border-box;width:100%;" aria-label="AI Prompt"></textarea>
+        </div>
+        <div class="ai-options" style="display:flex;gap:12px;align-items:center;flex-wrap:wrap;margin-top:12px;">
+          <label style="display:flex;align-items:center;gap:6px;font-size:1rem;color:#333;">
+            <input type="number" id="wordCountInput" value="300" min="50" max="2000" style="width:80px;padding:4px 8px;border:1.5px solid #cfd8dc;border-radius:4px;font-size:0.9rem;">
+            Words
+          </label>
+          <label style="display:flex;align-items:center;gap:6px;font-size:1rem;color:#333;">
+            <select id="toneSelect" style="padding:4px 8px;border:1.5px solid #cfd8dc;border-radius:4px;font-size:0.9rem;">
+              <option value="professional">Professional</option>
+              <option value="casual">Casual</option>
+              <option value="academic">Academic</option>
+              <option value="creative">Creative</option>
+              <option value="persuasive">Persuasive</option>
+            </select>
+            Tone
+          </label>
+          <button class="action-btn" id="generateBtn" style="background:var(--accent);">Generate Content</button>
+        </div>
+      </div>
+      <div class="textarea-wrap">
+        <textarea id="aiOutput" placeholder="AI-generated content will appear here..." readonly style="background:#f4f8fb;min-height:200px;"></textarea>
+      </div>
+      <div class="ai-actions" style="display:flex;gap:10px;margin-top:12px;">
+        <button class="utility-btn" id="copyAiBtn">Copy Content</button>
+        <button class="utility-btn" id="replaceMainBtn">Replace Main Text</button>
+        <button class="utility-btn" id="appendBtn">Append to Main</button>
+        <button class="utility-btn" id="clearAiBtn">Clear Output</button>
+      </div>
+      <div class="ai-status" id="aiStatus" style="margin-top:12px;padding:8px 12px;border-radius:6px;font-size:0.9rem;display:none;"></div>
+    </section>
     <section class="tool-card" id="download-tool" style="display:none;">
       <h1>Download Text</h1>
       <div class="controls">
@@ -455,6 +700,31 @@
     </section>
   </main>
   <script>
+    // --- Theme Management ---
+    const themeToggle = document.getElementById('themeToggle');
+    const themeIcon = document.getElementById('themeIcon');
+    
+    // Get saved theme from localStorage or default to 'light'
+    let currentTheme = localStorage.getItem('theme') || 'light';
+    
+    function setTheme(theme) {
+      document.documentElement.setAttribute('data-theme', theme);
+      currentTheme = theme;
+      localStorage.setItem('theme', theme);
+      
+      // Update theme icon
+      themeIcon.textContent = theme === 'dark' ? '☀️' : '🌙';
+    }
+    
+    // Initialize theme
+    setTheme(currentTheme);
+    
+    // Theme toggle event listener
+    themeToggle.addEventListener('click', () => {
+      const newTheme = currentTheme === 'light' ? 'dark' : 'light';
+      setTheme(newTheme);
+    });
+
     // --- Shared State ---
     let mainText = '';
     // --- Sidebar Navigation ---
@@ -465,6 +735,7 @@
       replace: document.getElementById('replace-tool'),
       stats: document.getElementById('stats-tool'),
       case: document.getElementById('case-tool'),
+      aiWriter: document.getElementById('aiWriter-tool'),
       download: document.getElementById('download-tool'),
     };
     function showTool(tool) {
@@ -515,7 +786,7 @@
     ['dragenter','dragover'].forEach(evt => dropZone.addEventListener(evt, e => {
       e.preventDefault();
       e.stopPropagation();
-      dropZone.style.background = '#e3eaf5';
+      dropZone.style.background = 'var(--input-bg)';
     }));
     ['dragleave','drop'].forEach(evt => dropZone.addEventListener(evt, e => {
       e.preventDefault();
@@ -724,5 +995,69 @@
     window.addEventListener('resize', handleResize);
     window.addEventListener('DOMContentLoaded', handleResize);
   </script>
+  <script type="module">
+    let currentUser = null;
+
+    function showAuthModal(show = true) {
+      authModal.style.display = show ? 'flex' : 'none';
+    }
+
+    function blockTools(block = true) {
+      document.querySelector('main').style.pointerEvents = block ? 'none' : '';
+      document.querySelector('main').style.opacity = block ? 0.4 : 1;
+    }
+
+    function resetAuthForm() {
+      authEmail.value = '';
+      authPassword.value = '';
+      authError.textContent = '';
+    }
+
+    loginBtn.onclick = async () => {
+      authError.textContent = '';
+      try {
+        await login(authEmail.value, authPassword.value);
+      } catch (e) {
+        authError.textContent = e.message;
+      }
+    };
+    signupBtn.onclick = async () => {
+      authError.textContent = '';
+      try {
+        await signup(authEmail.value, authPassword.value);
+      } catch (e) {
+        authError.textContent = e.message;
+      }
+    };
+    googleBtn.onclick = async () => {
+      authError.textContent = '';
+      try {
+        await loginWithGoogle();
+      } catch (e) {
+        authError.textContent = e.message;
+      }
+    };
+
+    onAuthChange(user => {
+      currentUser = user;
+      if (user) {
+        showAuthModal(false);
+        blockTools(false);
+      } else {
+        showAuthModal(true);
+        blockTools(true);
+        resetAuthForm();
+      }
+    });
+
+    // Block tools until login on page load
+    window.addEventListener('DOMContentLoaded', () => {
+      if (!currentUser) {
+        showAuthModal(true);
+        blockTools(true);
+      }
+    });
+  </script>
+  <script type="module" src="firebase/ai-writer.js"></script>
 </body>
 </html> 
