@@ -4,8 +4,8 @@
   "description": "WordFlow - Text Processing Tool with Firebase Authentication",
   "main": "server.js",
   "scripts": {
-    "start": "node server.js",
-    "dev": "node server.js"
+    "start": "node api.js && node server.js",
+    "dev": "node api.js && node server.js"
   },
   "keywords": [
     "text-processing",
@@ -20,4 +20,4 @@
   "engines": {
     "node": ">=14.0.0"
   }
-} 
+}
